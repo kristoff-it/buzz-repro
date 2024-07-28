@@ -1,0 +1,19 @@
+import "std";
+import "io";
+
+test "runFile" {
+    io.runFile("tests/utils/testing.buzz");
+
+    std.assert(true, message: "Could run a buzz file");
+}
+
+test "run non existent file" {
+    bool errorRaised = false;
+    try {
+        io.runFile("tests/utils/testingsldkfj.buzz");
+    } catch {
+        errorRaised = true;
+    }
+
+    std.assert(errorRaised, message: "Non existent file raised an error");
+}

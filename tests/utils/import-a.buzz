@@ -1,0 +1,7 @@
+namespace a;
+
+object Hello {
+    str message,
+}
+
+export Hello;

@@ -1,0 +1,16 @@
+import "std";
+import "os";
+
+test "Opening a socket" {
+    var socket = os.Socket.connect(
+        address: "127.0.0.1",
+        port: 8080,
+        netProtocol: os.SocketProtocol.tcp
+    );
+
+    std.print("socket fd: {socket.fd}");
+
+    socket.send("hello world");
+
+    socket.close();
+}

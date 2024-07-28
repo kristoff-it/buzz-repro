@@ -1,0 +1,132 @@
+namespace errors;
+
+export enum FileSystemError {
+    AccessDenied,
+    AntivirusInterference,
+    BadPathName,
+    DeviceBusy,
+    DiskQuota,
+    FileBusy,
+    FileLocksNotSupported,
+    FileNotFound,
+    FileSystem,
+    InvalidBatchScriptArg,
+    FileTooBig,
+    InputOutput,
+    InvalidHandle,
+    InvalidUtf8,
+    InvalidWtf8,
+    IsDir,
+    LinkQuotaExceeded,
+    NameTooLong,
+    NetworkNotFound,
+    NoDevice,
+    NonCanonical,
+    NoSpaceLeft,
+    NotDir,
+    NotSupported,
+    PathAlreadyExists,
+    PermissionDenied,
+    PipeBusy,
+    ProcessFdQuotaExceeded,
+    ReadOnlyFileSystem,
+    RenameAcrossMountPoints,
+    SharingViolation,
+    SocketNotConnected,
+    SymLinkLoop,
+    SystemFdQuotaExceeded,
+    SystemResources,
+    UnrecognizedVolume,
+    WouldBlock,
+}
+
+export enum ExecError {
+    ChildExecFailed,
+    CurrentWorkingDirectoryUnlinked,
+    InvalidExe,
+    InvalidFileDescriptor,
+    InvalidName,
+    InvalidUserId,
+    PermissionDenied,
+    ResourceLimitReached,
+    TooBig,
+    WaitAbandoned,
+    WaitTimeOut,
+}
+
+export enum SocketError {
+    AddressFamilyNotSupported,
+    AddressInUse,
+    AddressNotAvailable,
+    AddressNotResolved,
+    AlreadyBound,
+    AlreadyConnected,
+    BlockedByFirewall,
+    ConnectionAborted,
+    ConnectionPending,
+    ConnectionRefused,
+    ConnectionResetByPeer,
+    ConnectionTimedOut,
+    FileDescriptorNotASocket,
+    HostLacksNetworkAddresses,
+    Incomplete,
+    InterfaceNotFound,
+    InvalidCharacter,
+    InvalidEnd,
+    InvalidIPAddressFormat,
+    InvalidIpv4Mapping,
+    InvalidProtocolOption,
+    NameServerFailure,
+    NetworkSubsystemFailed,
+    NetworkUnreachable,
+    OperationNotSupported,
+    PermissionDenied,
+    ProcessFdQuotaExceeded,
+    ProtocolFailure,
+    ProtocolFamilyNotAvailable,
+    ProtocolNotSupported,
+    ServiceUnavailable,
+    SocketNotBound,
+    SocketNotListening,
+    SocketTypeNotSupported,
+    SystemFdQuotaExceeded,
+    SystemResources,
+    TemporaryNameServerFailure,
+    TimeoutTooBig,
+    UnknownHostName,
+    WouldBlock,
+}
+
+export enum ReadWriteError {
+    BrokenPipe,
+    ConnectionResetByPeer,
+    ConnectionTimedOut,
+    LockViolation,
+    NetNameDeleted,
+    NotOpenForReading,
+    NotOpenForWriting,
+    OperationAborted,
+    StreamTooLong,
+}
+
+export object CompileError {
+    str message = "CompileError",
+}
+export object InterpretError {
+    str message = "InterpretError",
+}
+export object InvalidArgumentError {
+    str message = "InvalidArgumentError",
+}
+export object NotYetImplementedError {
+    str message = "NotYetImplementedError",
+}
+export object OverflowError {
+    str message = "OverflowError",
+}
+export object UnderflowError {
+    str message = "UnderflowError",
+}
+export object UnexpectedError {
+    str message = "UnexpectedError",
+}

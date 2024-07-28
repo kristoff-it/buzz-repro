@@ -1,0 +1,22 @@
+import "http";
+import "debug";
+import "errors";
+import "serialize";
+
+fun main([str] _) > void !> any {
+    const client = http.Client.init();
+
+    const request = http.Request{
+        method = http.Method.GET,
+        headers = {
+            "accept": "*/*",
+            "user-agent": "buzz",
+        },
+        uri = "https://catfact.ninja/fact",
+    };
+
+    const response = client.send(request);
+    const fact = serialize.jsonDecode(response.body ?? "null").q(["fact"]).stringValue();
+
+    debug.dump(fact);
+}

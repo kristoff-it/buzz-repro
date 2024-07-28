@@ -1,0 +1,13 @@
+namespace b;
+
+import "tests/utils/import-a";
+import "std";
+
+var hello = a.Hello{ message = "hello world" };
+
+fun printClass() > void {
+    std.print("b: {a.Hello}");
+}
+
+export hello;
+export printClass;

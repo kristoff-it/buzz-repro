@@ -1,0 +1,22 @@
+| Invalid assignment target.
+import "std";
+
+test "`const` variable" {
+    const str yo = "yo";
+
+    yo = "no way";
+}
+
+| function arguments are `const`
+fun illegal(str yo) > void {
+    yo = "no way";
+}
+
+enum Hey {
+    lo,
+    joe,
+}
+
+test "assigning to enum field" {
+    Hey.lo = 1;
+}

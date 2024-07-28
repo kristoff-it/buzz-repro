@@ -1,0 +1,75 @@
+import "std";
+
+test "Optional force unwrapping with `!`" {
+    | Note: trying to force unwrap a null value raises an uncatchable error
+    | Dart allows to catch an null unwrap but swift doesn't
+    | I think it's saner for it to not be catchable but to provides safe way to unwrap it
+    str? hello = "hello world";
+
+    std.assert(hello! == "hello world", message: "Could force unwrap an optional");
+}
+
+test "Optional graceful unwrapping with `?`" {
+    [int]? optList = [1, 2, 3];
+
+    std.assert(optList?.len() == 3, message: "could unwrap optList");
+}
+
+object Me {
+    [int]? list
+}
+
+test "Optional chaining" {
+    Me? me = Me{
+        list = [1, 2, 3],
+    };
+
+    std.assert(me?.list?.len() == 3, message: "chaining optionals work");
+
+    Me? you = null;
+
+    std.assert(you?.list?.len() == null, message: "chaining optionals work");
+}
+
+test "Null coalescing operator" {
+    str? hello = null;
+
+    std.assert(hello ?? "world" == "world", message: "null coalescing");
+}
+
+test "Unwrap map subscript" {
+    {str: str} map = {
+        "yo": "lo",
+        "mo": "jo",
+    };
+
+    std.assert(map["yo"]?.len() == 2, message: "could unwrap map subscript");
+}
+
+object You {
+    str name = "joe"
+}
+
+test "Field access on map subscript" {
+    {str: You} map = {
+        "yo": You{}
+    };
+
+    std.assert(map["yo"]?.name == "joe", message: "could field access map subscript");
+}
+
+object A {
+    static A? instance = null;
+
+    str msg,
+
+    fun hello() > str {
+        return this.msg;
+    }
+}
+
+test "Check ahead" {
+    A.instance = A{ msg = "hello" };
+
+    _ = A.instance?.hello();
+}

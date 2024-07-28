@@ -1,0 +1,21 @@
+namespace testing;
+
+import "std" as std;
+
+int unexported = 42;
+
+fun hey(str message) > int {
+    std.print(message);
+    return unexported;
+}
+
+str ignore = "ignore me!";
+
+object PrefixMe {
+    str name = "Joe",
+}
+
+export std.assert as assert;
+export hey;
+export ignore;
+export PrefixMe;

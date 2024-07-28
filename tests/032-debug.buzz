@@ -1,0 +1,70 @@
+import "debug";
+| import "serialize";
+
+| TODO: put back one debug.ast is reactivated
+| test "Get AST" {
+|     str source = debug.ast(`
+|         import \"std\";
+|
+|         fun main([str] _) > void => std.print(\"hello world\");
+|     `, scriptName: "test");
+|
+|     Boxed jsonAST = jsonDecode(source);
+|
+|     std.print(jsonEncode(jsonAST));
+| }
+
+enum MyEnum {
+    One,
+    Two,
+    Three,
+}
+
+enum(str) MyStringEnum {
+    One,
+    Two,
+    Three,
+}
+
+object Data {
+    [int] data,
+}
+
+object MyObject {
+    str name,
+    int age = 12,
+    Data data,
+
+    static fun init(str name, int age) > MyObject {
+        return MyObject{
+            name = name,
+            age = age,
+            data = Data{ data = [<int>] },
+        };
+    }
+}
+
+test "dump" {
+    [int] list = [1, 2, 3, 4];
+    {str: int} map = {
+        "one": 1,
+        "two": 2,
+        "three": 3,
+    };
+
+    MyObject instance = MyObject{
+        name = "joe",
+        age = 35,
+        data = Data{
+            data = list
+        },
+    };
+
+    debug.dump(list);
+    debug.dump(map);
+    debug.dump(instance);
+    debug.dump(MyStringEnum.One);
+    debug.dump(MyEnum.One);
+    debug.dump("hello world");
+    debug.dump($"hello .*");
+}

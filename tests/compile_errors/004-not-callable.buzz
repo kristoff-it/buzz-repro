@@ -1,0 +1,5 @@
+| Can't be called
+test "Can't be called" {
+    int yo = 12;
+    yo("mo");
+}

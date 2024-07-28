@@ -1,0 +1,38 @@
+import "std";
+import "serialize";
+
+test "Json.encode" {
+    {str: any} data = {
+        "hello": "world",
+        "bye": 42,
+    };
+
+    std.assert(
+        serialize.jsonEncode(serialize.Boxed.init(data)) == `\{"hello":"world","bye":42}`,
+        message: "valid encode"
+    );
+}
+
+test "Json.decode" {
+    std.assert(
+        serialize.jsonDecode(`[ -12, true, "hello" ]`).listValue()[2].string() == "hello",
+        message: "could decode simple JSON"
+    );
+}
+
+test "Boxed.q" {
+    {str: any} data = {
+        "submap": {
+            <str: any>,
+            "subsubmap": {
+                <str: any>,
+                "one": 1,
+                "two": 2,
+            }
+        }
+    };
+
+    var boxed = serialize.Boxed.init(data);
+
+    std.assert(boxed.q(["submap", "subsubmap", "one"]).integer() == 1, message: "Boxed.q");
+}

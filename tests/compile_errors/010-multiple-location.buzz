@@ -1,0 +1,12 @@
+| Property `name` does not exists
+import "errors";
+
+object Some {
+    str msg,
+}
+
+test "Badly initializing an object declared in another file" {
+    var _ = errors.CompileError{
+        name = "wtf",
+    };
+}

@@ -1,0 +1,25 @@
+import "std";
+
+object A {
+    [A] list,
+
+    fun hello() > A {
+        std.print("hello");
+        return this;
+    }
+}
+
+test "Chained invoke" {
+    A a = A{
+        list = [
+            A{
+                list = [ A{ list = [<A>] } ]
+            },
+            A{
+                list = [<A>]
+            },
+        ]
+    };
+
+    _ = a.list[0].hello().list[0].hello();
+}

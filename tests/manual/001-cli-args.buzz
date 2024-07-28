@@ -1,0 +1,7 @@
+import "std";
+
+fun main([str] args) > void {
+    foreach (int index, str arg in args) {
+        std.print("{index}: {arg}");
+    }
+}

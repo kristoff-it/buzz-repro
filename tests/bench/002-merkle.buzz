@@ -1,0 +1,83 @@
+import "std";
+import "math";
+import "errors";
+
+object Node {
+    Node? left = null,
+    Node? right = null,
+    int? value = null,
+    int? hash = null,
+}
+
+fun makeTree(int depth) > Node {
+    if (depth > 0) {
+        return Node{
+            left = makeTree(depth - 1),
+            right = makeTree(depth - 1),
+        };
+    }
+
+    return Node{
+        value = 1
+    };
+}
+
+fun check(Node tree) > bool {
+    if (tree.hash != null) {
+        if (tree.value != null) {
+            return true;
+        } else {
+            return check(tree.left!) and check(tree.right!);
+        }
+    }
+
+    return false;
+}
+
+fun calHash(Node tree) > void {
+    if (tree.hash == null) {
+        if (tree.value -> value) {
+            tree.hash = value;
+        } else {
+            calHash(tree.left!);
+            calHash(tree.right!);
+
+            tree.hash = tree.left?.hash ?? 0 + tree.right?.hash ?? 0;
+        }
+    }
+}
+
+fun main([str] args) > void !> any {
+    int N = 6;
+    if (args.len() > 0) {
+        N = std.parseInt(args[0]) ?? 6;
+    }
+
+    int mindepth = 4;
+    int maxdepth = mindepth + 2;
+    if (maxdepth < N) {
+        maxdepth = N;
+    }
+
+    int stretchdepth = maxdepth + 1;
+    Node stretchtree = makeTree(stretchdepth);
+    calHash(stretchtree);
+
+    std.print("stretch tree of depth {stretchdepth}\t root hash: {stretchtree.hash ?? 0} check: {check(stretchtree)}");
+
+    Node longlivedtree = makeTree(maxdepth);
+    for (int depth = mindepth; depth < maxdepth; depth = depth + 2) {
+        int iterations = std.toInt(math.pow(x: 2.0, y: std.toFloat(maxdepth - depth + mindepth)));
+        int sum = 0;
+        for (int i = 0; i < iterations; i = i + 1) {
+            Node t = makeTree(depth);
+            calHash(t);
+            sum = sum + t.hash ?? 0;
+        }
+
+        std.print("{iterations}\t trees of depth {depth}\t root hash sum: {sum}");
+    }
+
+    calHash(longlivedtree);
+    std.print("long lived tree of depth {maxdepth}\t root hash: {longlivedtree.hash ?? 0} check: {check(longlivedtree)}");
+}

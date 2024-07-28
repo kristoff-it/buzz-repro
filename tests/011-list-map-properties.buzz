@@ -1,0 +1,19 @@
+import "std";
+
+object Hey {
+    [int] ages,
+    {int: str} names,
+}
+
+test "List and Map as Object properties" {
+    Hey hey = Hey{
+        ages = [<int>, 1, 2, 3],
+        names = {
+            <int: str>,
+            1: "hello"
+        },
+    };
+
+    std.assert(hey.ages[0] == 1, message: "list access");
+    std.assert(hey.names[1] == "hello", message: "map access");
+}

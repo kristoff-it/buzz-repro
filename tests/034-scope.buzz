@@ -1,0 +1,30 @@
+import "std";
+
+test "locals inside a foreach" {
+    str hello = "";
+
+    foreach (str _ in "hello world") {
+        str new = "yo";
+        str old = "lo";
+
+        foreach (str _ in "goodbye world") {
+            str newnew = "yoyo";
+            str oldold = "lolo";
+
+            std.assert(new == "yo", message: "locals are ok");
+            std.assert(old == "lo", message: "locals are ok");
+            std.assert(newnew == "yoyo", message: "locals are ok");
+            std.assert(oldold == "lolo", message: "locals are ok");
+        }
+
+        std.assert(hello == "");
+    }
+
+    for (int i = 0; i < 3; i = i + 1) {
+        str new = "yo";
+        str old = "lo";
+
+        std.assert(new == "yo", message: "locals are ok");
+        std.assert(old == "lo", message: "locals are ok");
+    }
+}

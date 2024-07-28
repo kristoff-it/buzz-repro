@@ -1,0 +1,17 @@
+import "std";
+import "serialize";
+
+test "Multiline strings" {
+    str multi = `\{
+        "some": "json",
+        "yes": {3 + 12},
+        {`
+            "another": "one"
+        `}
+    }`;
+
+    var json = serialize.jsonDecode(multi);
+
+    std.assert(json.q(["yes"]).integer() == 15, message: "multiline string is valid");
+    std.assert(json.q(["another"]).string() == "one", message: "multiline string is valid");
+}

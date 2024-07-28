@@ -1,0 +1,34 @@
+import "std";
+
+object MyObj {
+    int id = 1,
+
+    fun bound() > bool {
+        return true;
+    }
+}
+
+enum MyEnum {
+    one,
+    two,
+    three,
+}
+
+fun myFun(int id) > int {
+    return id * 2;
+}
+
+test "`is` operator" {
+    std.assert(12 is int, message: "`is` on int");
+    std.assert(true is bool, message: "`is` on bool");
+    std.assert("yo" is str, message: "`is` on str");
+
+    std.assert(MyObj{} is MyObj, message: "`is` for an object instance");
+    std.assert(MyEnum.one is MyEnum, message: "`is` for an enum instance");
+    std.assert(myFun is Function(int id) > int, message: "`is` for a function");
+
+    std.assert([<int>, 1,2,3] is [int], message: "`is` on a list");
+    std.assert({<str: int>, "one": 1} is {str: int}, message: "`is` on a map");
+    | TODO: should be `Function(MyObj) > bool`
+    std.assert(MyObj{}.bound is Function() > bool, message: "`is` on bound method");
+}

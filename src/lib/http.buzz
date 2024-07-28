@@ -1,0 +1,287 @@
+namespace http;
+
+import "buffer";
+import "errors";
+
+export enum HttpError {
+    CertificateBundleLoadFailure,
+    CompressionInitializationFailed,
+    CompressionUnsupported,
+    ConnectionRefused,
+    ConnectionResetByPeer,
+    ConnectionTimedOut,
+    DecompressionFailure,
+    EndOfStream,
+    HostLacksNetworkAddresses,
+    HttpChunkInvalid,
+    HttpConnectionHeaderUnsupported,
+    HttpHeaderContinuationsUnsupported,
+    HttpHeadersInvalid,
+    HttpHeadersOversize,
+    HttpRedirectLocationInvalid,
+    HttpRedirectLocationMissing,
+    HttpTransferEncodingUnsupported,
+    InvalidCharacter,
+    InvalidContentLength,
+    InvalidFormat,
+    InvalidPort,
+    InvalidTrailers,
+    MalformedUri,
+    NameServerFailure,
+    NetworkUnreachable,
+    Overflow,
+    RedirectRequiresResend,
+    StreamTooLong,
+    TemporaryNameServerFailure,
+    TlsAlert,
+    TlsFailure,
+    TlsInitializationFailed,
+    TooManyHttpRedirects,
+    UnexpectedCharacter,
+    UnexpectedConnectFailure,
+    UnexpectedReadFailure,
+    UnexpectedWriteFailure,
+    UnknownHostName,
+    UnsupportedTransferEncoding,
+    UnsupportedUriScheme,
+    UriMissingHost,
+    ClientCollected,
+    RequestCollected,
+}
+
+| https://datatracker.ietf.org/doc/html/rfc2616
+
+export enum(str) Method {
+    GET,
+    HEAD,
+    POST,
+    PUT,
+    DELETE,
+    CONNECT,
+    OPTIONS,
+    TRACE,
+    PATCH,
+}
+
+|| @private
+extern fun HttpClientNew() > ud;
+|| @private
+extern fun HttpClientDeinit(ud client) > void;
+|| @private
+extern fun HttpClientSend(ud client, Method method, str uri, {str: str} headers) > ud !> HttpError;
+|| @private
+extern fun HttpRequestWait(ud request) > void !> HttpError;
+|| @private
+extern fun HttpRequestRead(ud request) > Response !> HttpError;
+|| @private
+extern fun HttpRequestDeinit(ud request) > void;
+
+const {int: str} reasons = {
+    100: "Continue",
+    101: "Switching Protocols",
+    102: "Processing",
+
+    200: "OK",
+    201: "Created",
+    202: "Accepted",
+    203: "Non-authoritative Information",
+    204: "No Content",
+    205: "Reset Content",
+    206: "Partial Content",
+    207: "Multi-Status",
+    208: "Already Reported",
+    226: "IM Used",
+
+    300: "Multiple Choices",
+    301: "Moved Permanently",
+    302: "Found",
+    303: "See Other",
+    304: "Not Modified",
+    305: "Use Proxy",
+    307: "Temporary Redirect",
+    308: "Permanent Redirect",
+
+    400: "Bad Request",
+    401: "Unauthorized",
+    402: "Payment Required",
+    403: "Forbidden",
+    404: "Not Found",
+    405: "Method Not Allowed",
+    406: "Not Acceptable",
+    407: "Proxy Authentication Required",
+    408: "Request Timeout",
+    409: "Conflict",
+    410: "Gone",
+    411: "Length Required",
+    412: "Precondition Failed",
+    413: "Payload Too Large",
+    414: "Request-URI Too Long",
+    415: "Unsupported Media Type",
+    416: "Requested Range Not Satisfiable",
+    417: "Expectation Failed",
+    418: "I'm a teapot",
+    421: "Misdirected Request",
+    422: "Unprocessable Entity",
+    423: "Locked",
+    424: "Failed Dependency",
+    426: "Upgrade Required",
+    428: "Precondition Required",
+    429: "Too Many Requests",
+    431: "Request Header Fields Too Large",
+    444: "Connection Closed Without Response",
+    451: "Unavailable For Legal Reasons",
+    499: "Client Closed Request",
+
+    500: "Internal Server Error",
+    501: "Not Implemented",
+    502: "Bad Gateway",
+    503: "Service Unavailable",
+    504: "Gateway Timeout",
+    505: "HTTP Version Not Supported",
+    506: "Variant Also Negotiates",
+    507: "Insufficient Storage",
+    508: "Loop Detected",
+    510: "Not Extended",
+    511: "Network Authentication Required",
+    599: "Network Connect Timeout Error",
+};
+
+export object HttpParseError{
+    str? message = null,
+}
+
+object Connection {
+    || @private
+    ud connection,
+}
+
+export object Client {
+    || @private
+    ud client,
+    || @private
+    bool collected = false,
+
+    static fun init() > Client {
+        return Client{
+            client = HttpClientNew(),
+        };
+    }
+
+    fun send(Request request) > Response *> void !> HttpError, errors.InvalidArgumentError, HttpParseError {
+        _ = this.start(request);
+
+        yield void;
+
+        return request.wait();
+    }
+
+    fun start(Request request) > Request !> HttpError {
+        if (this.collected) {
+            throw HttpError.ClientCollected;
+        }
+    
+        var requestPtr = HttpClientSend(
+            client: this.client,
+            method: request.method,
+            uri: request.uri,
+            headers: request.headers,
+        );
+
+        request.request = requestPtr;
+        | In case we're reusing the request object
+        request.response = null;
+
+        return request;
+    }
+
+    fun collect() > void {
+        if (!this.collected) {
+            this.collected = true;
+
+            HttpClientDeinit(this.client);
+        }
+    }
+}
+
+export object Request {
+    ud? request = null,
+    Response? response = null,
+    Method method,
+    {str: str} headers = {<str: str>},
+    str uri = "/",
+    str? body = null,
+    bool collected = false,
+
+    fun wait() > Response !> HttpError, errors.InvalidArgumentError, HttpParseError {
+        if (this.collected) {
+            throw HttpError.RequestCollected;
+        }
+    
+        if (this.response != null) {
+            throw errors.InvalidArgumentError{};
+        }
+
+        if (this.request -> request) {
+            HttpRequestWait(request);
+
+            const response = HttpRequestRead(request);
+
+            | - we don't need the request anymore
+            | - also this allows to properly reuse the Request object
+            | - finally the client can't be collected if there's opened connections
+            HttpRequestDeinit(request);
+
+            this.request = null;
+            this.response = response;
+
+            return response;
+        }
+
+        throw errors.InvalidArgumentError{};
+    }
+
+    fun toString() > str {
+        try {
+            var result = buffer.Buffer.init();
+
+            result.write("{this.method.value} {this.uri} HTTP/1.1\r\n");
+            foreach (str key, str value in this.headers) {
+                result.write("{key}: {value}\r\n");
+            }
+
+            result.write("{this.body ?? ""}\r\n");
+
+            str strResult = result.toString();
+
+            return strResult;
+        } catch {}
+
+        return "";
+    }
+}
+
+| Don't change proeprties order
+export object Response {
+    int status = 200,
+    {str: str} headers = {<str: str>},
+    str? body = null,
+
+    fun toString() > str {
+        try {
+            var result = buffer.Buffer.init();
+
+            result.write("HTTP/1.1 {this.status} {reasons[this.status]}\r\n");
+            foreach (str key, str value in this.headers) {
+                result.write("{key}: {value}\r\n");
+            }
+
+            result.write("\r\n{this.body ?? ""}\r\n");
+
+            str strResult = result.toString();
+
+            return strResult;
+        } catch {}
+
+        return "HTTP/1.1 500 Internal Server Error";
+    }
+}

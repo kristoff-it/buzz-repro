@@ -1,0 +1,18 @@
+import "std";
+
+fun willFail() > int !> str {
+    throw "i'm failing";
+    return 1;
+}
+
+fun willFailVoid() > void !> str {
+    throw "i'm failing";
+}
+
+test "Inline catch clauses" {
+    std.assert((willFail() catch 0) == 0, message: "error or default value");
+}
+
+test "Inline catch void" {
+    willFailVoid() catch void;
+}

@@ -1,0 +1,70 @@
+import "examples/sdl-wrapped" as _;
+
+| buzz -L/path/to/SDL2.dylib/so/dll examples/sdl.buzz
+fun main([str] _) > int !> SDLError {
+    SDL sdl = SDL.init([Subsystem.Video]);
+
+    Window window = Window.init(
+        "SDL FFI test",
+        width: 800,
+        height: 600,
+        flags: [WindowFlag.OpenGL, WindowFlag.AllowHighDPI],
+    );
+
+    Renderer renderer = window.createRenderer(
+        index: -1,
+        flags: [RendererFlag.Accelerated, RendererFlag.TargetTexture],
+    );
+
+    Texture texture = renderer.createTexture(
+        format: PixelFormat.RGBA8888,
+        access: TextureAccess.Target,
+        width: 800,
+        height: 600,
+    );
+
+    renderer.setRenderTarget(texture);
+    renderer.setRenderDrawColor(
+        Color{
+            red = 0x01,
+            green = 0x9d,
+            blue = 0xe0,
+        }
+    );
+
+    renderer.fillRect(
+        Rect{
+            x = 200,
+            y = 200,
+            width = 200,
+            height = 200,
+        }
+    );
+
+    renderer.setRenderTarget(null);
+    renderer.setRenderDrawColor(
+        Color{
+            red = 0,
+            green = 0,
+            blue = 0,
+        }
+    );
+
+    while (true) {
+        if (sdl.pollEvent() -> event) {
+            if (event.@"type" == EventType.Quit.value) {
+                break;
+            }
+        }
+
+        renderer.renderCopy(texture);
+
+        renderer.renderPresent();
+
+        sdl.delay(10.0);
+    }
+
+    sdl.quit();
+
+    return 0;
+}
